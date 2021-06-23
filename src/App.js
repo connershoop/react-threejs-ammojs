@@ -1,23 +1,24 @@
 import logo from './logo.svg';
 import './App.css';
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Canvas } from '@react-three/fiber'
-import Box from './Components/Box';
-import { default as Ammo } from 'ammo.js/builds/ammo';
+import Sphere from './Components/Sphere';
+import Block from './Components/Block';
+import { physicsWorldInitialization } from './physicsWorld';
+import MaskBall from './Components/maskBall';
 
 
-//Ammojs Initialization
-Ammo().then( start )
-        
-function start(){
-  console.log('test')
-    //code goes here
 
-}
 
-function App() {
+const App = () => {
+
+  useEffect(() => {
+    let start = async () => {await physicsWorldInitialization()}
+    start()
+}, [])
+
   return (
-    <div className="App">
+    <div className="App" style={{height: '100vh'}}>
       <header className="App-header"  style={{position: 'absolute', width: '100vw'}}>
         <img src={logo} className="App-logo" alt="logo" />
         <p>
@@ -32,11 +33,13 @@ function App() {
           Learn React
         </a>
       </header>
-      <Canvas>
-        <ambientLight />
-        <pointLight position={[10, 10, 10]} />
-        <Box position={[-1.2, 0, 0]} />
-        <Box position={[1.2, 0, 0]} />
+      <Canvas 
+      camera={{fov:75,  near:0.1, far: 1000, position: [1,1,4]}} >
+        {/* <hemisphereLight skyColor='#ff0000' groundColor='#ff0000' intensity={1}/> */}
+        <pointLight position={[-10,10,0]} color={'white'}  />
+        <Sphere position={[0, 2, 0]}/>
+        <MaskBall position={[0.2, 4, 0]} />
+        <Block position={[0, 0, 0]} />
       </Canvas>
     </div>
   );

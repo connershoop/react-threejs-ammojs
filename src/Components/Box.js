@@ -18,8 +18,8 @@ const Box = (props) => {
         onClick={(event) => setActive(!active)}
         onPointerOver={(event) => setHover(true)}
         onPointerOut={(event) => setHover(false)}>
-        <boxGeometry args={[1, 2, 3]} />
-        <meshStandardMaterial color={hovered ? 'hotpink' : 'orange'} />
+        <boxBufferGeometry args={[1, 2, 3]} />
+        <meshPhongMaterial color={hovered ? 'hotpink' : 'orange'} />
       </mesh>
     )
   }
