@@ -2,29 +2,31 @@
 import Ammo from 'ammo.js'
 import { Mesh, MeshPhongMaterial, SphereBufferGeometry } from 'three';
 import Sphere from './Components/Sphere';
+import { blockPlanes, spheres } from './Objects/objects';
 
 // variable declaration
-let physicsWorld, scene, camera, renderer, clock, ball, maskBall, blockPlane, tmpTrans;
-let colGroupPlane = 1, colGroupRedBall = 2, colGroupGreenBall = 4
+let physicsWorld, rigidBodies = {spheres: [], blockPlanes:[]}, tmpTrans;
 
 
 //Ammojs Initialization 
 const physicsWorldInitialization = async () => {
+    console.log('physics world initialized')
     const ammo = await Ammo()
-        
-    console.log('physics world starts')
     
     //code goes here
     tmpTrans = new ammo.btTransform();
 
     setupPhysicsWorld(ammo);
-    createBlockPlane(ammo)
-    createBall(ammo)
-    createMaskBall(ammo)
+
+    for (const [key, blockPlane] of blockPlanes.entries()){
+        createBlockPlane(ammo, blockPlane, key)
+    } 
+    for (const [key, sphere] of spheres.entries()){
+        createSphere(ammo, sphere, key)
+    }
 }
 
 function setupPhysicsWorld(ammo){
-    console.log('physics world sets up')
 
     let collisionConfiguration  = new ammo.btDefaultCollisionConfiguration(),
        dispatcher              = new ammo.btCollisionDispatcher(collisionConfiguration),
@@ -38,12 +40,13 @@ function setupPhysicsWorld(ammo){
 
 
 
-function createBlockPlane(ammo){
+function createBlockPlane(ammo, blockPlane, key){
     
-    let pos = {x: 0, y: 0, z: 0};
-    let scale = {x: 2, y: 0.1, z: 2};
-    let quat = {x: 0, y: 0, z: 0, w: 1};
-    let mass = 0;
+    let pos = blockPlane.position;
+    let scale = blockPlane.scale;
+    let quat = blockPlane.quaternion;
+    let mass = blockPlane.mass;
+    let colliderGroups = blockPlane.colliderGroups
 
     //threeJS Section
 
@@ -64,17 +67,18 @@ function createBlockPlane(ammo){
     let body = new ammo.btRigidBody( rbInfo );
 
 
-    physicsWorld.addRigidBody( body, colGroupPlane, colGroupRedBall );
+    physicsWorld.addRigidBody( body, colliderGroups[0], colliderGroups[1] );
+    rigidBodies.blockPlanes[key] = {body, ...blockPlane}
 }
 
 
-function createBall(ammo){
+function createSphere(ammo, sphere, key){
     
-    let pos = {x: 0, y: 2, z: 0};
-    let radius = 0.2;
-    let quat = {x: 0, y: 0, z: 0, w: 1};
-    let mass = 1;
-
+    let pos = sphere.position;
+    let radius = sphere.radius;
+    let quat = sphere.quaternion;
+    let mass = sphere.mass;
+    let colliderGroups = sphere.colliderGroups
 
     //ammojs Section
     let transform = new ammo.btTransform();
@@ -92,39 +96,10 @@ function createBall(ammo){
     let rbInfo = new ammo.btRigidBodyConstructionInfo( mass, motionState, colShape, localInertia );
     let body = new ammo.btRigidBody( rbInfo );
 
-
-    physicsWorld.addRigidBody( body, colGroupRedBall, colGroupPlane | colGroupGreenBall );
+    physicsWorld.addRigidBody( body, colliderGroups[0], colliderGroups[1] );
     
-    ball = body;
+    rigidBodies.spheres[key] = {body, ...sphere}
+
 }
 
-function createMaskBall(ammo){
-    
-    let pos = {x: 0.2, y: 4, z: 0};
-    let radius = 0.2;
-    let quat = {x: 0, y: 0, z: 0, w: 1};
-    let mass = 1;
-
-    //Ammojs Section
-    let transform = new ammo.btTransform();
-    transform.setIdentity();
-    transform.setOrigin( new ammo.btVector3( pos.x, pos.y, pos.z ) );
-    transform.setRotation( new ammo.btQuaternion( quat.x, quat.y, quat.z, quat.w ) );
-    let motionState = new ammo.btDefaultMotionState( transform );
-
-    let colShape = new ammo.btSphereShape( radius );
-    colShape.setMargin( 0.05 );
-
-    let localInertia = new ammo.btVector3( 0, 0, 0 );
-    colShape.calculateLocalInertia( mass, localInertia );
-
-    let rbInfo = new ammo.btRigidBodyConstructionInfo( mass, motionState, colShape, localInertia );
-    let body = new ammo.btRigidBody( rbInfo );
-
-
-    physicsWorld.addRigidBody( body, colGroupGreenBall, colGroupRedBall);
-    
-    maskBall = body
-}
-
-export {physicsWorldInitialization, physicsWorld, ball,maskBall, tmpTrans }
+export {physicsWorldInitialization, physicsWorld, tmpTrans, rigidBodies }

@@ -2,9 +2,9 @@
 
 import React, { useRef,useEffect, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
-import { tmpTrans, physicsWorld, ball } from '../physicsWorld'
+import { tmpTrans, physicsWorld, rigidBodies} from '../physicsWorld'
 
-const Sphere = (props) => {
+const Sphere = ({position, id}) => {
 
 
     // This reference will give us direct access to the mesh
@@ -14,9 +14,8 @@ const Sphere = (props) => {
     const [active, setActive] = useState(false)
     // Does something every frame.  This is outside of React without overhead
     useFrame((state, delta) => {
-        if(physicsWorld){
-                physicsWorld.stepSimulation( delta, 10 );
-                let ms = ball.getMotionState();
+        if(rigidBodies && rigidBodies.spheres && rigidBodies.spheres[id]){
+                let ms = rigidBodies.spheres[id].body.getMotionState();
                 if ( ms ) {
 
                 ms.getWorldTransform( tmpTrans );
@@ -29,13 +28,15 @@ const Sphere = (props) => {
                 mesh.current.position.y = p.y()
                 mesh.current.position.z = p.z()
                 }
-            }}
+            }
+          }
     )
+
   
     return (
       <mesh
-        {...props}
         ref={mesh}
+        position={position}
         scale={active ? 2 : 1}
         onClick={(event) => setActive(!active)}
         onPointerOver={(event) => setHover(true)}
