@@ -3,8 +3,9 @@
 import React, { useRef,useEffect, useState } from 'react'
 import { useFrame } from '@react-three/fiber'
 import { tmpTrans, physicsWorld, rigidBodies} from '../physicsWorld'
+import { spheres } from '../Objects/objects'
 
-const Sphere = ({position, id}) => {
+const Sphere = ({sphere, id}) => {
 
 
     // This reference will give us direct access to the mesh
@@ -31,18 +32,18 @@ const Sphere = ({position, id}) => {
             }
           }
     )
-
+ 
   
     return (
       <mesh
         ref={mesh}
-        position={position}
+        position={sphere.position}
         scale={active ? 2 : 1}
         onClick={(event) => setActive(!active)}
         onPointerOver={(event) => setHover(true)}
         onPointerOut={(event) => setHover(false)}>
         <sphereBufferGeometry args = {[0.2, 10, 10]} />
-        <meshPhongMaterial color={hovered ? 'hotpink' : 'blue'} />
+        <meshPhongMaterial color={sphere.color} />
       </mesh>
     )
   }

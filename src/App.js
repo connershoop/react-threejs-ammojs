@@ -1,7 +1,7 @@
 import logo from './logo.svg';
 import './App.css';
 import React, { useEffect, useState } from 'react'
-import { Canvas } from '@react-three/fiber'
+import { Canvas, useThree } from '@react-three/fiber'
 import Sphere from './Components/Sphere';
 import Block from './Components/Block';
 import { physicsWorldInitialization } from './physicsWorld';
@@ -10,6 +10,8 @@ import { blockPlanes, spheres } from './Objects/objects';
 
 
 const App = () => {
+
+
 
 
   useEffect(() => {
@@ -21,7 +23,7 @@ const App = () => {
     return <Sphere 
     key={key}
     id={key}
-    position={[sphere.position.x, sphere.position.y, sphere.position.z]}
+    sphere={sphere}
     />
   })
 
@@ -29,15 +31,16 @@ const App = () => {
     return <Block 
     key={key}
     id={key}
-    position={[blockPlane.position.x, blockPlane.position.y, blockPlane.position.z]}
+    blockPlane
     />
   })
   
   return (
-    <div className="App" style={{height: '100vh'}}>
+    <div
+    className="App" style={{height: '100vh'}}>
       <header className="App-header"  style={{position: 'absolute', width: '100vw'}}>
         <img src={logo} className="App-logo" alt="logo" />
-        <p>
+        <p> 
           Edit <code>src/App.js</code> and save to reload.
         </p>
         <a
@@ -50,11 +53,12 @@ const App = () => {
         </a>
       </header>
       <Canvas 
-      camera={{fov:75,  near:0.1, far: 1000, position: [1,1,4]}} >
+      camera={{fov:75,  near:0.1, far: 1000, position: [1,1,4]}} 
+      >
         <StepSimulation />
         {/* <hemisphereLight skyColor='#ff0000' groundColor='#ff0000' intensity={1}/> */}
         <pointLight position={[-10,10,0]} color={'white'}  />
-         {sphereDisplays}
+          {sphereDisplays}
           {blockPlaneDisplays}
       </Canvas>
     </div>
