@@ -1,16 +1,16 @@
-import actionTypes from '../actionsTypes'
+import actionTypes from '../actionsTypes';
 
 const initialState = {
-    default: null
-}
+  default: null
+};
 
 const defaultReducer = (state=initialState, action) => {
-    switch(action.type) {
-        case actionTypes.SET_DEFAULT:
-            return {...state, default: action.payload}
-        default:
-            return state
-    }
-}
+  switch(action.type) {
+  case actionTypes.SET_DEFAULT:
+    return {...state, default: action.payload};
+  default:
+    return state;
+  }
+};
 
-export default defaultReducer
+export default defaultReducer;
