@@ -2,11 +2,11 @@ import logo from './logo.svg';
 import './App.css';
 import React, { useEffect, useState } from 'react'
 import { Canvas, useThree } from '@react-three/fiber'
-import Sphere from './Components/Sphere';
 import Block from './Components/Block';
 import { physicsWorldInitialization } from './physicsWorld';
-import StepSimulation from './Components/StepWorld';
-import { blockPlanes, spheres } from './Objects/objects';
+import StepSimulation from './Components/StepSimulation';
+import { blockPlanes } from './Objects/objects';
+import Spheres from './Components/Spheres';
 
 
 const App = () => {
@@ -19,13 +19,6 @@ const App = () => {
     start()
   }, [])
 
-  const sphereDisplays = spheres.map((sphere, key) => {
-    return <Sphere 
-    key={key}
-    id={key}
-    sphere={sphere}
-    />
-  })
 
   const blockPlaneDisplays = blockPlanes.map((blockPlane, key) => {
     return <Block 
@@ -58,7 +51,7 @@ const App = () => {
         <StepSimulation />
         {/* <hemisphereLight skyColor='#ff0000' groundColor='#ff0000' intensity={1}/> */}
         <pointLight position={[-10,10,0]} color={'white'}  />
-          {sphereDisplays}
+        <Spheres />
           {blockPlaneDisplays}
       </Canvas>
     </div>

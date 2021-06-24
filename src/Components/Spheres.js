@@ -5,17 +5,21 @@ import { useFrame } from '@react-three/fiber'
 import { tmpTrans, physicsWorld, rigidBodies} from '../physicsWorld'
 import { spheres } from '../Objects/objects'
 
-const Sphere = ({sphere, id}) => {
+const Spheres = () => {
+  // const explosions = useStore((state) => state.explosions)
 
 
     // This reference will give us direct access to the mesh
-    const mesh = useRef()
+    const group = useRef()
     // Set up state for the hovered and active state
     const [hovered, setHover] = useState(false)
     const [active, setActive] = useState(false)
     // Does something every frame.  This is outside of React without overhead
     useFrame((state, delta) => {
-        if(rigidBodies && rigidBodies.spheres && rigidBodies.spheres[id]){
+      if(group?.current?.children.length > 0){
+            console.log(group)
+              spheres.forEach((sphere, id) => {
+                const mesh = group.current.children[id]
                 let ms = rigidBodies.spheres[id].body.getMotionState();
                 if ( ms ) {
 
@@ -30,22 +34,28 @@ const Sphere = ({sphere, id}) => {
                 mesh.current.position.z = p.z()
                 }
             }
+            )
           }
+          }
+          
     )
  
   
     return (
-      <mesh
-        ref={mesh}
-        position={sphere.position}
-        scale={active ? 2 : 1}
-        onClick={(event) => setActive(!active)}
-        onPointerOver={(event) => setHover(true)}
-        onPointerOut={(event) => setHover(false)}>
-        <sphereBufferGeometry args = {[0.2, 10, 10]} />
-        <meshPhongMaterial color={sphere.color} />
-      </mesh>
+      <group ref={group} >
+        {spheres.map((sphere, index) => {
+          <instancedMesh
+            key={index}
+            position={sphere.position}
+            scale={1}>
+            <sphereBufferGeometry args = {[sphere.radius, 10, 10]} />
+            <meshPhongMaterial color={sphere.color} />
+          </instancedMesh>
+        })
+        }
+      </group>
+
     )
   }
 
-  export default Sphere;
+  export default Spheres;

@@ -1,7 +1,7 @@
 // @ts-ignore
 import Ammo from 'ammo.js'
 import { Mesh, MeshPhongMaterial, SphereBufferGeometry } from 'three';
-import Sphere from './Components/Sphere';
+import Sphere from './Components/Spheres';
 import { blockPlanes, spheres } from './Objects/objects';
 
 // variable declaration
