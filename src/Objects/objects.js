@@ -4,7 +4,7 @@ const colliderGroups= {
   sphere2: 4
 };
 
-export const blockPlanes = [
+export const initialBlockPlanes = [
   {
     position: {x:0, y:0, z:0},
     scale: {x: 2, y: 0.1, z: 2},
@@ -15,7 +15,9 @@ export const blockPlanes = [
   }
 ];
 
-export const spheres = [
+
+
+export const initialSpheres = [
   {
     position: {x: 0, y: 2, z: 0},
     radius: 0.2,
@@ -34,6 +36,14 @@ export const spheres = [
   },
 ];
 
+export const initialBowl = {
+  position: {x: 0, y: 0, z: 0},
+  radius: 0.2,
+  quaternion: {x: 0, y: 0, z: 0, w: 1},
+  mass: 1,
+  colliderGroups: [colliderGroups.sphere1, colliderGroups.plane | colliderGroups.sphere2],
+  color: 'gray',
+};
 
 export const baseSphere = {
   position: {x: 0, y: 2, z: 0},
