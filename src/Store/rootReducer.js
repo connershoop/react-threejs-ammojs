@@ -1,10 +1,10 @@
 import { combineReducers } from 'redux';
 import defaultReducer from './default/defaultReducer';
-import spheresReducer from './spheres/spheresReducer';
+import objectsReducer from './objects/objectsReducer';
 
 const rootReducer = combineReducers({
   default: defaultReducer,
-  spheres: spheresReducer,
+  objects: objectsReducer,
 });
 
 export default rootReducer;

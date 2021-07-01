@@ -1,6 +1,6 @@
 import React, { useRef, useState } from 'react';
 import { useThree } from '@react-three/fiber';
-import { addSphereActionCreator } from '../Store/spheres/spheresActions';
+import { addSphereActionCreator } from '../Store/objects/objectsActions';
 
 const Block = ({ blockPlane, id, dispatch }) => {
   // This reference will give us direct access to the mesh
@@ -18,7 +18,7 @@ const Block = ({ blockPlane, id, dispatch }) => {
     <mesh
       ref={mesh}
 
-      position={blockPlane.position}
+      position={[blockPlane.position.x, blockPlane.position.y, blockPlane.position.z]}
       scale={1}
       onClick= {()=>{handleAddSphere();}}
       onPointerOver={(event) => setHovered(true)}

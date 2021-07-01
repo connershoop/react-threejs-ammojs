@@ -6,7 +6,7 @@ const colliderGroups= {
 
 export const initialBlockPlanes = [
   {
-    position: {x:0, y:0, z:0},
+    position: {x:0, y:-1, z:0},
     scale: {x: 2, y: 0.1, z: 2},
     quaternion: {x: 0, y: 0, z: 0, w: 1},
     mass: 0,
@@ -36,19 +36,20 @@ export const initialSpheres = [
   },
 ];
 
-export const initialBowl = {
+export const initialConvexHull = {
   position: {x: 0, y: 0, z: 0},
   radius: 0.2,
   quaternion: {x: 0, y: 0, z: 0, w: 1},
-  mass: 1,
+  mass: 3,
   colliderGroups: [colliderGroups.sphere1, colliderGroups.plane | colliderGroups.sphere2],
   color: 'gray',
+  gltf: null,
 };
 
 export const baseSphere = {
   position: {x: 0, y: 2, z: 0},
   radius: 0.2,
-  quaternion: {x: 0, y: 0, z: 0, w: 1},
+  quaternion: {x: 0.002, y: 0.5, z: 0.3, w: 1},
   mass: 1,
   colliderGroups: [colliderGroups.sphere1, colliderGroups.plane | colliderGroups.sphere2],
   color: 'salmon',

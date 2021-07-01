@@ -2,25 +2,25 @@
 import Ammo from 'ammo.js';
 import {  Vector3 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader';
-import { initialBlockPlanes, initialSpheres, initialBowl } from './Objects/objects';
-
+import { initialBlockPlanes, initialSpheres } from './Objects/objects';
+import loader from '../src/Physics/loader';
+import { useStore } from 'react-redux';
 // variable declaration
-let ammo, physicsWorld, loader, 
-  rigidBodies = { spheres: [], blockPlanes: [] }, tmpTrans;
-
+let ammo, physicsWorld,
+  rigidBodies = { spheres: [], blockPlanes: [], convexHulls: [] }, tmpTrans;
 
 //Ammojs Initialization 
 const physicsWorldInitialization = async () => {
-  console.log('physics world initialized');
   ammo = await Ammo();
-  // loader = new GLTFLoader();
   //code goes here
   tmpTrans = new ammo.btTransform();
-
+  
   setupPhysicsWorld(ammo);
-
-  // createConvexHullShape(initialBowl);
-
+  
+  console.log('physics world initialized');
+  
+  //createConvexHullShape(initialConvexHull);
+  
   for (const blockPlane of initialBlockPlanes) {
     createBlockPlane(blockPlane);
   }
@@ -92,7 +92,7 @@ function createSphere(sphere) {
   let colShape = new ammo.btSphereShape(radius);
   colShape.setMargin(0.05);
 
-  let localInertia = new ammo.btVector3(0, 0, 0);
+  let localInertia = new ammo.btVector3(0, 2, 0);
   colShape.calculateLocalInertia(mass, localInertia);
 
   let rbInfo = new ammo.btRigidBodyConstructionInfo(mass, motionState, colShape, localInertia);
@@ -104,75 +104,77 @@ function createSphere(sphere) {
 
 }
 
-function createConvexHullShape(bowl) {
+function createConvexHullShape(convexHull) {
 
-  let pos = bowl.position;
-  let radius = bowl.radius;
-  let quat = bowl.quaternion;
-  let mass = bowl.mass;
-  let colliderGroups = bowl.colliderGroups;
+  let pos = convexHull.position;
+  let radius = convexHull.radius;
+  let quat = convexHull.quaternion;
+  let mass = convexHull.mass;
+  let colliderGroups = convexHull.colliderGroups;
   let triangles = [];
   let colShape;
 
-  loader.load('Duck.glb',
-    function(gltf){
-      // console.log(gltf.animations); // Array<THREE.AnimationClip>
-      // console.log(gltf.scenes); // Array<THREE.Scene>
-      // console.log(gltf.cameras); // Array<THREE.Camera>
-      // console.log(gltf.asset); // Object
-      
-      
-      gltf.scene.traverse(function (child) {
-        if ( child.isMesh ) {
-          var positions=child.geometry.attributes.position.array;
-          let i, triangle;
-          let triangle_mesh = new ammo.btTriangleMesh;
-          for(i=0;i<positions.length;i+=3){
-            triangles.push( new Vector3().fromArray( positions, i ) );
-          }     
-          let vec3_1 = new ammo.btVector3(0,0,0);
-          let vec3_2 = new ammo.btVector3(0,0,0);
-          let vec3_3 = new ammo.btVector3(0,0,0);
-          for ( i = 0; i < triangles.length; i++ ) {
-            triangle = triangles[i];
-            vec3_1.setX(triangle.x);
-            vec3_1.setY(triangle.y);
-            vec3_1.setZ(triangle.z);
-            vec3_2.setX(triangle.x);
-            vec3_2.setY(triangle.y);
-            vec3_2.setZ(triangle.z);
-            vec3_3.setX(triangle.x);
-            vec3_3.setY(triangle.y);
-            vec3_3.setZ(triangle.z);
+  let btConvexHullShape = new ammo.btConvexHullShape();
+  convexHull.gltf.scene.traverse(function (child) {
+    if ( child.isMesh ) {
+      var positions=child.geometry.attributes.position.array.map((value) => {
+        return value* 0.01;
+      });
+      let i, triangle;
+      let triangle_mesh = new ammo.btTriangleMesh;
+      for(i=0;i<positions.length;i+=3){
+        triangles.push( new Vector3().fromArray( positions, i ) );
+      }     
 
-            triangle_mesh.addTriangle(vec3_1, vec3_2, vec3_3, true);
-          }
+      let vec3_1 = new ammo.btVector3(0,0,0);
+      let vec3_2 = new ammo.btVector3(0,0,0);
+      let vec3_3 = new ammo.btVector3(0,0,0);
+      for ( i = 0; i < triangles.length; i+=3) {
+        vec3_1.setX(triangles[i].x);
+        vec3_1.setY(triangles[i].y);
+        vec3_1.setZ(triangles[i].z);
+        btConvexHullShape.addPoint(vec3_1,true);
 
-          colShape = new ammo.btBvhTriangleMeshShape(triangle_mesh, true, true);
-          console.log(triangles);
-          //ammojs Section
-          let transform = new ammo.btTransform();
-          transform.setIdentity();
-          transform.setOrigin(new ammo.btVector3(pos.x, pos.y, pos.z));
-          transform.setRotation(new ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
-          let motionState = new ammo.btDefaultMotionState(transform);
+        vec3_2.setX(triangles[i+1].x);
+        vec3_2.setY(triangles[i+1].y);
+        vec3_2.setZ(triangles[i+1].z);
+        btConvexHullShape.addPoint(vec3_2,true);
 
-          colShape.setMargin(0.05);
+        vec3_3.setX(triangles[i+2].x);
+        vec3_3.setY(triangles[i+2].y);
+        vec3_3.setZ(triangles[i+2].z);
+        btConvexHullShape.addPoint(vec3_3,true);
 
-          let localInertia = new ammo.btVector3(0, 0, 0);
-          colShape.calculateLocalInertia(mass, localInertia);
-
-          let rbInfo = new ammo.btRigidBodyConstructionInfo(mass, motionState, colShape, localInertia);
-          let body = new ammo.btRigidBody(rbInfo);
-
-          physicsWorld.addRigidBody(body);//, colliderGroups[0], colliderGroups[1]);
-
-          rigidBodies.spheres.push({ body, ...bowl });
-
-        }
+        triangle_mesh.addTriangle(vec3_1, vec3_2, vec3_3, true);
       }
-      );
-    });
+
+      //colShape = new ammo.btBvhTriangleMeshShape(triangle_mesh, true, true);
+
+      //ammojs Section
+      let transform = new ammo.btTransform();
+      transform.setIdentity();
+      transform.setOrigin(new ammo.btVector3(pos.x, pos.y, pos.z));
+      transform.setRotation(new ammo.btQuaternion(quat.x, quat.y, quat.z, quat.w));
+      let motionState = new ammo.btDefaultMotionState(transform);
+
+      //colShape.setMargin(0.05);
+      btConvexHullShape.setMargin(0.00);
+
+      let localInertia = new ammo.btVector3(0, 0, 0);
+      //colShape.calculateLocalInertia(mass, localInertia);
+      btConvexHullShape.calculateLocalInertia(mass, localInertia);
+
+      //let rbInfo = new ammo.btRigidBodyConstructionInfo(mass, motionState, colShape, localInertia);
+      let rbInfo = new ammo.btRigidBodyConstructionInfo(mass, motionState, btConvexHullShape, localInertia);
+      let body = new ammo.btRigidBody(rbInfo);
+
+      physicsWorld.addRigidBody(body);//, colliderGroups[0], colliderGroups[1]);
+
+      rigidBodies.convexHulls.push({ body, ...convexHull });
+
+    }
+  }
+  );
 }
 
-export { physicsWorldInitialization, physicsWorld, tmpTrans, rigidBodies, createSphere };
+export { physicsWorldInitialization,createConvexHullShape, physicsWorld, tmpTrans, rigidBodies, createSphere };

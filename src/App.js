@@ -1,6 +1,6 @@
 import logo from './logo.svg';
 import './App.css';
-import React, { useEffect } from 'react';
+import React, { useEffect, useState, Suspense } from 'react';
 import { Canvas } from '@react-three/fiber';
 import Block from './Components/Block';
 import { physicsWorldInitialization } from './physicsWorld';
@@ -8,22 +8,22 @@ import StepSimulation from './Components/StepSimulation';
 import { initialBlockPlanes } from './Objects/objects';
 import { useDispatch, useSelector } from 'react-redux';
 import Sphere from './Components/Sphere';
-import { addSphereActionCreator } from './Store/spheres/spheresActions';
-import Bowl from './Components/Bowl';
+import { addSphereActionCreator } from './Store/objects/objectsActions';
+import useInitialize from './Hooks/initialize';
+import ConvexHull from './Components/ConvexHull';
+import CameraController from './Components/CameraController';
 
 
 const App = () => {
 
   // Initialize
+  useInitialize(true);
   const dispatch = useDispatch();
 
-  useEffect(() => {
-    let start = async () => { await physicsWorldInitialization(); };
-    start();
-  }, []);
-
   // State
-  const spheres = useSelector(state => state.spheres.spheres);
+  const initializeLoadingState = useSelector(state => state.default.initializeLoadingState);
+  const spheres = useSelector(state => state.objects.spheres);
+  const convexHull = useSelector(state => state.objects.convexHull);
 
   //Actions
   const handleAddSphere = () => {
@@ -36,13 +36,14 @@ const App = () => {
       dispatch={dispatch}
       key={key}
       id={key}
-      blockPlane
+      blockPlane = {blockPlane}
     />;
   });
 
   const sphereDisplays = spheres.map((sphere, index) => {
     return <Sphere key={index} sphere={sphere} index={index} />;
   });
+  
   return (
     <div
       className="App" style={{ height: '100vh' }}>
@@ -60,14 +61,19 @@ const App = () => {
           Learn React
         </a>
       </header>
-      <Canvas
+      {initializeLoadingState === 'done' && <Canvas
         camera={{ fov: 75, near: 0.1, far: 1000, position: [1, 1, 4] }}
       >
-        <StepSimulation />
-        <pointLight position={[-10, 10, 0]} color={'white'} />
-        {sphereDisplays}
-        {blockPlaneDisplays}
-      </Canvas>
+        <Suspense fallback={null}>
+          <StepSimulation />
+          <CameraController />
+          <pointLight position={[-10, 10, 0]} color={'white'} />
+          {sphereDisplays}
+          {blockPlaneDisplays}
+          <ConvexHull convexHull = {convexHull}/>
+        </Suspense>
+
+      </Canvas>}
     </div>
   );
 };
